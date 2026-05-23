@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - MODA STORE</title>
+  <link rel="stylesheet" href="/admin/css/admin.css">
+  
+  <!-- Export Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="loginScreen" style="display:none;align-items:center;justify-content:center;min-height:100vh;background:#f1f5f9;font-family:'Inter',sans-serif">
+    <div style="background:white;border-radius:16px;padding:48px 40px;width:100%;max-width:420px;box-shadow:0 4px 20px rgba(0,0,0,0.08)">
+      <div style="text-align:center;margin-bottom:32px">
+        <div style="font-size:40px;margin-bottom:12px">👔</div>
+        <h1 style="font-size:24px;font-weight:700;color:#1e293b;margin-bottom:4px"><span style="color:#6366f1">MODA</span>STORE</h1>
+        <p style="color:#94a3b8;font-size:14px">Panel de Administración</p>
+      </div>
+      <form id="adminLoginForm">
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-weight:600;font-size:13px;margin-bottom:6px;color:#334155">Email</label>
+          <input name="email" type="email" placeholder="admin@tiendamoda.com" required
+            style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;transition:border-color 0.2s"
+            onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'">
+        </div>
+        <div style="margin-bottom:20px">
+          <label style="display:block;font-weight:600;font-size:13px;margin-bottom:6px;color:#334155">Contraseña</label>
+          <input name="password" type="password" placeholder="••••••••" required
+            style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;transition:border-color 0.2s"
+            onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'">
+        </div>
+        <p id="loginError" style="color:#ef4444;font-size:13px;margin-bottom:12px;min-height:18px"></p>
+        <button type="submit" style="width:100%;padding:12px;background:#6366f1;color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.2s"
+          onmouseover="this.style.background='#4f46e5'" onmouseout="this.style.background='#6366f1'">
+          Iniciar Sesión
+        </button>
+      </form>
+      <p style="text-align:center;margin-top:24px;font-size:13px;color:#94a3b8">
+        <a href="/" style="color:#6366f1;text-decoration:none;font-weight:500">← Volver a la tienda</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="admin-layout" id="adminApp" style="display:none">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-icon">👔</span>
+          <span>MODA</span>STORE
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-label">Principal</div>
+        <a class="nav-item active" data-page="dashboard">
+          <span class="icon">📊</span> Dashboard
+        </a>
+        <div class="nav-label">Gestión</div>
+        <a class="nav-item" data-page="products">
+          <span class="icon">👕</span> Productos
+        </a>
+        <a class="nav-item" data-page="categories">
+          <span class="icon">📁</span> Categorías
+        </a>
+        <a class="nav-item" data-page="brands">
+          <span class="icon">🏷️</span> Marcas
+        </a>
+        <a class="nav-item" data-page="orders">
+          <span class="icon">📦</span> Pedidos
+          <span class="badge-nav" id="pendingOrdersBadge" style="display:none">0</span>
+        </a>
+        <a class="nav-item" data-page="users">
+          <span class="icon">👥</span> Usuarios
+        </a>
+
+        <div class="nav-label">Configuración</div>
+        <a class="nav-item" data-page="banners">
+          <span class="icon">🖼️</span> Banners
+        </a>
+        <a class="nav-item" data-page="coupons">
+          <span class="icon">🏷️</span> Cupones
+        </a>
+        <a class="nav-item" data-page="footer">
+          <span class="icon">🔗</span> Pie de Página
+        </a>
+        <a class="nav-item" data-page="whatsapp">
+          <span class="icon">💬</span> WhatsApp
+        </a>
+        <a class="nav-item" data-page="settings">
+          <span class="icon">⚙️</span> Ajustes
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="/" target="_blank"><span>🌐</span> Ver Tienda</a>
+        <a href="#" id="adminLogout"><span>🚪</span> Cerrar Sesión</a>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="admin-header-left">
+          <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="admin-header-right">
+          <a href="/" target="_blank" class="header-btn" title="Ver tienda">🌐</a>
+          <div class="admin-user-info">
+            <div class="admin-user-avatar" id="userAvatar">A</div>
+            <span id="adminName">Admin</span>
+          </div>
+        </div>
+      </header>
+      <div class="admin-content" id="mainContent">
+        <!-- Dynamic content loads here -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">Modal</h2>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="admin-toast-container" id="toastContainer"></div>
+
+  <!-- Libraries for Exports -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+
+  <script src="/admin/js/admin.js"></script>
+
+</body>
+</html>
